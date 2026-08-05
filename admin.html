@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Template Register</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <h1>Admin Panel</h1>
+    <a class="btn ghost" href="index.html">&larr; Situs</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="access-form" hidden>
+    <div class="card narrow">
+      <h2>Akses Terbatas</h2>
+      <form id="key-form">
+        <input type="password" id="key-input" placeholder="Admin key" required>
+        <button class="btn primary" type="submit">Masuk</button>
+      </form>
+      <p class="error" id="key-error" hidden>Key salah.</p>
+    </div>
+  </section>
+
+  <section id="admin-panel" hidden>
+    <div class="card">
+      <h2>Upload Template Baru</h2>
+      <form id="upload-form">
+        <label>Nama
+          <input type="text" id="name" maxlength="200" required>
+        </label>
+        <label>Deskripsi
+          <textarea id="description" rows="2"></textarea>
+        </label>
+        <label>File (PDF / XLS / XLSX, maks 5MB)
+          <input type="file" id="file" accept=".pdf,.xls,.xlsx" required>
+        </label>
+        <button class="btn primary" type="submit">Upload</button>
+      </form>
+    </div>
+
+    <h2>Daftar Template</h2>
+    <ul id="template-list" class="list"></ul>
+    <p id="empty" class="empty" hidden>Belum ada template.</p>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
