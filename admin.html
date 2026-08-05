@@ -1,56 +1,65 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin — Template Register</title>
-<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Panduan Format Register BNI</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header class="topbar">
-  <div class="wrap">
-    <h1>Admin Panel</h1>
-    <a class="btn ghost" href="index.html">&larr; Situs</a>
+  <div class="container">
+    <h1>Panel Admin</h1>
+    <p class="subtitle">Kelola template register</p>
+
+    <!-- Akses hanya dengan key valid -->
+    <div id="auth-section" style="display:none;">
+      <div class="upload-section">
+        <h2>Upload Template Baru</h2>
+        <p class="info">Pilih satu atau lebih file (max 10, PDF/Excel, max 5 MB per file).</p>
+
+        <input type="file" id="fileInput" accept=".pdf,.xls,.xlsx" multiple style="display:none;">
+        <button id="selectFilesBtn" class="btn btn-primary">Pilih File</button>
+
+        <!-- Daftar file yang dipilih -->
+        <div id="fileListContainer" class="file-list-container" style="display:none;">
+          <div class="bulk-desc-control">
+            <label for="bulkDesc">Deskripsi untuk semua (opsional):</label>
+            <div class="desc-control-row">
+              <input type="text" id="bulkDesc" placeholder="Masukkan deskripsi...">
+              <button id="applyBulkDesc" class="btn btn-secondary">Terapkan ke Semua</button>
+            </div>
+          </div>
+          <ul id="fileList" class="file-list"></ul>
+          <button id="uploadAllBtn" class="btn btn-primary">Upload Semua</button>
+        </div>
+      </div>
+
+      <!-- Progress upload -->
+      <div id="progressSection" class="progress-section" style="display:none;">
+        <div class="progress-bar-wrapper">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <p id="progressText">0/0 file</p>
+        <div id="progressDetail" class="progress-detail"></div>
+      </div>
+
+      <hr>
+
+      <!-- Daftar template yang sudah ada -->
+      <h2>Template Tersedia</h2>
+      <div id="templateList" class="template-grid">
+        <p>Memuat data...</p>
+      </div>
+    </div>
+
+    <!-- Jika akses tanpa key -->
+    <div id="no-access" style="display:none;">
+      <p>Akses tidak diizinkan.</p>
+    </div>
   </div>
-</header>
 
-<main class="wrap">
-  <section id="access-form" hidden>
-    <div class="card narrow">
-      <h2>Akses Terbatas</h2>
-      <form id="key-form">
-        <input type="password" id="key-input" placeholder="Admin key" required>
-        <button class="btn primary" type="submit">Masuk</button>
-      </form>
-      <p class="error" id="key-error" hidden>Key salah.</p>
-    </div>
-  </section>
-
-  <section id="admin-panel" hidden>
-    <div class="card">
-      <h2>Upload Template Baru</h2>
-      <form id="upload-form">
-        <label>Nama
-          <input type="text" id="name" maxlength="200" required>
-        </label>
-        <label>Deskripsi
-          <textarea id="description" rows="2"></textarea>
-        </label>
-        <label>File (PDF / XLS / XLSX, maks 5MB)
-          <input type="file" id="file" accept=".pdf,.xls,.xlsx" required>
-        </label>
-        <button class="btn primary" type="submit">Upload</button>
-      </form>
-    </div>
-
-    <h2>Daftar Template</h2>
-    <ul id="template-list" class="list"></ul>
-    <p id="empty" class="empty" hidden>Belum ada template.</p>
-  </section>
-</main>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script src="admin.js"></script>
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="admin.js"></script>
 </body>
 </html>
