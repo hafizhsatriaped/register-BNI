@@ -317,3 +317,32 @@ textarea { resize: vertical; }
 }
 
 #preview-frame { width: 100%; height: 100%; border: none; }
+
+/* --- Form Login Admin --- */
+.login-section {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.login-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.login-section input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.login-section .btn {
+  width: 100%;
+}
