@@ -11,7 +11,7 @@ Semua perubahan penting dicatat di sini. Format mengikuti [Keep a Changelog](htt
 ### Diubah
 - **Download template** (`app.js`): sebelumnya `cardHtml` memakai `<a href="..." download>` yang atribut `download`-nya diabaikan di banyak browser mobile (iOS Safari, sebagian Android), sehingga hanya membuka file dan tidak menyimpan.
   1. Ubah tombol Download memanggil fungsi `download(url, name)`, mengambil file sebagai `blob`, membuat object URL, lalu memicu unduhan.
-  2. Perbaikan: `URL.revokeObjectURL` ditunda (setelah 60 detik) agar browser sempat memulai download; tambah fallback `window.open` bila `fetch` gagal.
+  2. Perbaikan: `URL.revokeObjectURL` ditunda (setelah 60 detik) agar browser sempat memulai download; tambah fallback bila `fetch` gagal. Fallback memakai `location.href` (navigasi) karena `window.open` diblokir popup-blocker di mobile sehingga terkesan "tidak ada reaksi".
   3. Adaptasi per-platform: **iOS** → navigasi ke viewer PDF asli (tersedia tombol Bagikan / Simpan ke Files); **Android** → unduhan langsung ke folder Downloads.
 - `escapeJs()` baru untuk men-escape string pada atribut `onclick` inline agar aman dari tanda kutip/garis miring.
 
