@@ -12,35 +12,6 @@ function escapeJs(s) {
   return s.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 }
 
-function download(url, name) {
-  fetch(url)
-    .then(res => {
-      if (!res.ok) throw new Error("response " + res.status);
-      return res.blob();
-    })
-    .then(blob => {
-      const blobUrl = URL.createObjectURL(blob);
-      // iOS: navigasi ke viewer PDF asli biar ada tombol Simpan/Bagikan
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-      if (isIOS) {
-        window.location.href = blobUrl;
-      } else {
-        const a = document.createElement("a");
-        a.href = blobUrl;
-        a.download = name;
-        a.rel = "noopener";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      }
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
-    })
-    .catch(() => {
-      // navigasi (bukan window.open) biar tidak diblokir popup blocker
-      window.location.href = url;
-    });
-}
-
 function escapeHtml(s) {
   return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
@@ -85,7 +56,7 @@ function cardHtml(t) {
       <p>${escapeHtml(t.description || "")}</p>
       <div class="card-actions">
         ${isPdf ? `<button class="btn" onclick="openPreview('${escapeJs(url)}')">Preview</button>` : ""}
-        <a class="btn primary" href="#" onclick="event.preventDefault(); download('${escapeJs(url)}', '${escapeJs(t.name)}')">Download</a>
+        <a class="btn primary" href="${escapeHtml(url)}" target="_blank" rel="noopener">Download</a>
       </div>
     </article>`;
 }
