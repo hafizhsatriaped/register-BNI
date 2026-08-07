@@ -12,17 +12,26 @@ function escapeJs(s) {
   return s.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 }
 
-async function download(url, name) {
-  const res = await fetch(url);
-  const blob = await res.blob();
-  const blobUrl = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = blobUrl;
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(blobUrl);
+function download(url, name) {
+  fetch(url)
+    .then(res => {
+      if (!res.ok) throw new Error("response " + res.status);
+      return res.blob();
+    })
+    .then(blob => {
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      // Tunda revoke agar browser sempat mulai download
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    })
+    .catch(() => {
+      window.open(url, "_blank", "noopener");
+    });
 }
 
 function escapeHtml(s) {
