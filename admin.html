@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Panduan Format Register BNI</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Panel Admin</h1>
+    <p class="subtitle">Kelola template register</p>
+
+    <!-- Form login key -->
+    <div id="login-section" class="login-section">
+      <label for="keyInput">Masukkan Kunci Admin:</label>
+      <input type="password" id="keyInput" placeholder="Kunci rahasia">
+      <button id="loginBtn" class="btn btn-primary">Masuk</button>
+      <p id="loginError" style="color:red; display:none;">Kunci salah. Coba lagi.</p>
+    </div>
+
+    <!-- Panel admin (hanya tampil setelah login) -->
+    <div id="auth-section" style="display:none;">
+      <div class="upload-section">
+        <h2>Upload Template Baru</h2>
+        <p class="info">Pilih satu atau lebih file (max 10, PDF/Excel, max 5 MB per file).</p>
+
+        <input type="file" id="fileInput" accept=".pdf,.xls,.xlsx" multiple style="display:none;">
+        <button id="selectFilesBtn" class="btn btn-primary">Pilih File</button>
+
+        <div id="fileListContainer" class="file-list-container" style="display:none;">
+          <div class="bulk-desc-control">
+            <label for="bulkDesc">Deskripsi untuk semua (opsional):</label>
+            <div class="desc-control-row">
+              <input type="text" id="bulkDesc" placeholder="Masukkan deskripsi...">
+              <button id="applyBulkDesc" class="btn btn-secondary">Terapkan ke Semua</button>
+            </div>
+          </div>
+          <ul id="fileList" class="file-list"></ul>
+          <button id="uploadAllBtn" class="btn btn-primary">Upload Semua</button>
+        </div>
+      </div>
+
+      <div id="progressSection" class="progress-section" style="display:none;">
+        <div class="progress-bar-wrapper">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <p id="progressText">0/0 file</p>
+        <div id="progressDetail" class="progress-detail"></div>
+      </div>
+
+      <hr>
+      <h2>Template Tersedia</h2>
+      <div id="templateList" class="template-grid">
+        <p>Memuat data...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Konfigurasi hardcode (sementara, sampai config.js bisa dimuat)
+    window.SUPABASE_URL = "https://tadmzfqxfpbcurybcjet.supabase.co";
+    window.SUPABASE_ANON_KEY = "sb_publishable_hnIk56jX8MWCoq7-tQb30g_SI7ammBm";
+    window.ADMIN_KEY = "Joni18munir21";
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
