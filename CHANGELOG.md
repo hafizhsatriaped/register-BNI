@@ -21,6 +21,9 @@ Semua perubahan penting dicatat di sini. Format mengikuti [Keep a Changelog](htt
 
 Kesimpulan: hanya **navigasi ke URL file asli** yang reaksi di semua perangkat. Karena hosting statis (GitHub Pages) + Supabase tidak dapat mengirim header `Content-Disposition: attachment`, **tombol Download dikembalikan menjadi link langsung** ke `file_url` (buka di tab baru). Simpan berkas di mobile lewat viewer PDF bawaan (Share / Simpan ke Files di iOS, ikon download di Chrome Android).
 
+### Diubah — README
+- `README.md` dirombak agar sesuai kondisi aktual: hosting **GitHub Pages + Cloudflare** (bukan lagi "Netlify disarankan"), alamat live `register.hafizhsatria.com`, penambahan `CHANGELOG.md` di daftar struktur, dan bagian baru **Perilaku download** yang menjelaskan cara simpan file di mobile.
+
 ### Catatan deploy
 - Situs di **GitHub Pages** (di balik cache Cloudflare). Setiap push ke `main` butuh ~1–2 menit untuk build + purge cache sebelum versi teranyar aktif di https://register.hafizhsatria.com.
 - Repo remote: `https://github.com/hafizhsatriaped/register-BNI` (branch `main`).
