@@ -20,13 +20,19 @@ function download(url, name) {
     })
     .then(blob => {
       const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = name;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      // Tunda revoke agar browser sempat mulai download
+      // iOS: navigasi ke viewer PDF asli biar ada tombol Simpan/Bagikan
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if (isIOS) {
+        window.location.href = blobUrl;
+      } else {
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = name;
+        a.rel = "noopener";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
       setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
     })
     .catch(() => {
