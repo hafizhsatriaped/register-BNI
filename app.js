@@ -36,7 +36,8 @@ function download(url, name) {
       setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
     })
     .catch(() => {
-      window.open(url, "_blank", "noopener");
+      // navigasi (bukan window.open) biar tidak diblokir popup blocker
+      window.location.href = url;
     });
 }
 
