@@ -2,16 +2,19 @@
 
 Dashboard template register (BNI). Statis HTML/CSS/JS + Supabase (storage + database). Tanpa login; admin dilindungi URL key.
 
+Live: **https://register.hafizhsatria.com** (hosting GitHub Pages + CDN Cloudflare).
+
 ## Struktur
 
 ```
-index.html   → dashboard publik: grid, cari, preview PDF (iframe), download
-admin.html   → panel admin: upload, list, hapus (dengan konfirmasi)
-config.js    → isi SUPABASE_URL, SUPABASE_ANON_KEY, ADMIN_KEY
-app.js       → logika dashboard publik
-admin.js     → logika panel admin
-styles.css   → gaya bersama
-netlify.toml → redirect /admin → admin.html (khusus Netlify)
+index.html    → dashboard publik: grid, cari, preview PDF (iframe), download
+admin.html    → panel admin: upload, list, hapus (dengan konfirmasi)
+app.js        → logika dashboard publik
+admin.js      → logika panel admin (termasuk form login key)
+config.js     → isi SUPABASE_URL, SUPABASE_ANON_KEY, ADMIN_KEY
+styles.css    → gaya bersama
+netlify.toml  → redirect /admin → admin.html (jika di-deploy ke Netlify)
+CHANGELOG.md  → riwayat semua perubahan
 ```
 
 ## Setup Supabase (sekali saja)
@@ -55,9 +58,20 @@ create policy "objects_delete_anon" on storage.objects
 
 ## Deploy
 
-**Netlify** (disarankan): drag & drop folder ini ke app.netlify.com, atau `netlify deploy`. Akses admin: `<situs>/admin?key=KEY`.
+**GitHub Pages (dipakai saat ini):**
+1. Push ke repo `main` di GitHub → aktifkan Pages dari branch `main`.
+2. Untuk domain kustom, buat file `CNAME` berisi domain (contoh: `register.hafizhsatria.com`).
+3. Akses admin: `<situs>/admin.html?key=KEY`.
+4. Catatan: tiap push butuh ~1–2 menit untuk build + purge cache CDN sebelum versi teranyar aktif.
 
-**GitHub Pages**: push folder ke repo, aktifkan Pages. Tanpa redirect, akses admin pakai `<situs>/admin.html?key=KEY`.
+**Netlify (alternatif):** drag & drop folder ini ke app.netlify.com, atau `netlify deploy`. Redirect `/admin` → `admin.html` otomatis via `netlify.toml`. Akses admin: `<situs>/admin?key=KEY`.
+
+## Perilaku download (penting)
+
+- Tombol **Download** adalah link langsung ke `file_url` (dibuka di tab baru).
+- Di **desktop**, file terunduh otomatis ke folder Download.
+- Di **mobile**, browser membuka file di viewer PDF bawaan. Simpan berkas lewat fitur native viewer: iOS → tombol **Share → Save to Files**; Android Chrome → ikon download di viewer.
+- Alasan: pendekatan download via blob gagal diam-diam di beberapa browser mobile (lihat `CHANGELOG.md`), dan hosting statis tidak dapat mengirim header `Content-Disposition: attachment` untuk memaksa unduhan.
 
 ## Catatan keamanan
 
