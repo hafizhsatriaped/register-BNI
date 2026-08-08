@@ -2,12 +2,6 @@
 
 Semua perubahan penting dicatat di sini. Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/).
 
-## [0.2.0] — 2026-08-08
-
-### Ditambahkan
-- **Google AdSense** di `index.html`: tag `<meta name="google-adsense-account">` (verifikasi situs) + script `adsbygoogle.js` (ca-pub-4153459165710434) di `<head>`. Iklan hanya di halaman publik; `admin.html` tidak dipasangi karena login-protected (kebijakan AdSense).
-- `AGENTS.md` — panduan agen AI.
-
 ## [0.1.0] — 2026-08-07
 
 ### Ditambahkan
