@@ -11,33 +11,44 @@
     <h1>Panel Admin</h1>
     <p class="subtitle">Kelola template register</p>
 
-    <!-- Form login key -->
-    <div id="login-section" class="login-section">
-      <label for="keyInput">Masukkan Kunci Admin:</label>
-      <input type="password" id="keyInput" placeholder="Kunci rahasia">
-      <button id="loginBtn" class="btn btn-primary">Masuk</button>
-      <p id="loginError" style="color:red; display:none;">Kunci salah. Coba lagi.</p>
+    <!-- Form login Supabase Auth -->
+    <div id="login-section" class="login-section" hidden>
+      <div class="field">
+        <label for="emailInput">Email</label>
+        <input type="email" id="emailInput" autocomplete="username" placeholder="nama@domain.com">
+      </div>
+      <div class="field">
+        <label for="passwordInput">Password</label>
+        <input type="password" id="passwordInput" autocomplete="current-password" placeholder="Password admin">
+      </div>
+      <button id="loginBtn" class="btn btn-primary btn-block">Masuk</button>
+      <p id="loginError" class="login-error" style="display:none;"></p>
     </div>
 
     <!-- Panel admin (hanya tampil setelah login) -->
     <div id="auth-section" style="display:none;">
+      <div class="panel-head">
+        <span id="sessionEmail" class="session-email"></span>
+        <button id="logoutBtn" class="btn btn-secondary">Keluar</button>
+      </div>
+
       <div class="upload-section">
         <h2>Upload Template Baru</h2>
         <p class="info">Pilih satu atau lebih file (max 10, PDF/Excel, max 5 MB per file).</p>
 
         <input type="file" id="fileInput" accept=".pdf,.xls,.xlsx" multiple style="display:none;">
-        <button id="selectFilesBtn" class="btn btn-primary">Pilih File</button>
+        <button id="selectFilesBtn" class="btn btn-primary activeable">Pilih File</button>
 
         <div id="fileListContainer" class="file-list-container" style="display:none;">
-          <div class="bulk-desc-control">
+          <div class="bulk-desc-control field">
             <label for="bulkDesc">Deskripsi untuk semua (opsional):</label>
             <div class="desc-control-row">
               <input type="text" id="bulkDesc" placeholder="Masukkan deskripsi...">
-              <button id="applyBulkDesc" class="btn btn-secondary">Terapkan ke Semua</button>
+              <button id="applyBulkDesc" class="btn btn-secondary activeable">Terapkan ke Semua</button>
             </div>
           </div>
           <ul id="fileList" class="file-list"></ul>
-          <button id="uploadAllBtn" class="btn btn-primary">Upload Semua</button>
+          <button id="uploadAllBtn" class="btn btn-primary activeable">Upload Semua</button>
         </div>
       </div>
 
@@ -57,13 +68,8 @@
     </div>
   </div>
 
-  <script>
-    // Konfigurasi hardcode (sementara, sampai config.js bisa dimuat)
-    window.SUPABASE_URL = "https://tadmzfqxfpbcurybcjet.supabase.co";
-    window.SUPABASE_ANON_KEY = "sb_publishable_hnIk56jX8MWCoq7-tQb30g_SI7ammBm";
-    window.ADMIN_KEY = "Joni18munir21";
-  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
   <script src="admin.js"></script>
 </body>
 </html>

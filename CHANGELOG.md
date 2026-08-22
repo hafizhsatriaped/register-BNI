@@ -2,6 +2,23 @@
 
 Semua perubahan penting dicatat di sini. Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/).
 
+## [0.2.0] — 2026-08-22
+
+### Keamanan
+- **Autentikasi admin pindah ke Supabase Auth**: kunci admin yang tersimpan polos di source code dihapus total (`ADMIN_KEY` tidak ada lagi di `config.js` maupun `admin.html`). Login panel admin kini memakai email + password melalui `supabase.auth.signInWithPassword`, sesi bertahan via session bawaan supabase-js, dan tersedia tombol Keluar.
+- **RLS ditutup untuk anon** (lihat `supabase-auth-migration.sql`): INSERT/DELETE pada tabel `templates` dan bucket storage `templates` kini hanya untuk user terautentikasi. Sebelumnya siapa pun bisa menulis/menghapus data langsung ke Supabase memakai anon key dari source publik. Baca tetap publik.
+- Konfigurasi duplikat inline di `admin.html` dihapus; semua konfigurasi lewat satu `config.js`.
+- Kunci admin lama yang pernah terekspos di repo ini dianggap terbakar — jangan dipakai ulang di sistem lain.
+
+### Diperbaiki
+- **`styles.css` rusak sebagian dibenahi**: blok `.modal-close` tidak pernah ditutup sehingga aturan CSS setelahnya ikut salah muat; duplikat blok `.btn` dengan kurung yatim dihapus.
+- Warna progress bar upload disamakan dengan palet situs (oranye aksen) — sebelumnya hijau default yang tidak konsisten.
+- Nama file daftar upload dirender lewat `textContent` (bukan template string) agar bebas XSS dari nama file.
+
+### Ditambahkan
+- Feedback taktil pada tombol utama (efek tekan saat diklik).
+- Label aksesibel pada form login; pesan error login spesifik (kredensial salah vs koneksi gagal).
+
 ## [0.1.0] — 2026-08-07
 
 ### Ditambahkan

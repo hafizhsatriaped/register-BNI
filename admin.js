@@ -1,53 +1,72 @@
 (function () {
-  // --- Login logic ---
+  // --- Supabase client ---
+  const sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+
+  // --- Elemen login ---
   const loginSection = document.getElementById('login-section');
   const authSection = document.getElementById('auth-section');
-  const keyInput = document.getElementById('keyInput');
+  const emailInput = document.getElementById('emailInput');
+  const passwordInput = document.getElementById('passwordInput');
   const loginBtn = document.getElementById('loginBtn');
   const loginError = document.getElementById('loginError');
 
-  // Cek apakah ada key di URL (jika sudah login sebelumnya)
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlKey = urlParams.get('key');
-  
-  if (urlKey === window.ADMIN_KEY) {
-    // Jika URL sudah mengandung key yang benar, langsung tampilkan panel
-    showAdminPanel();
-  } else {
-    // Tampilkan form login
-    loginSection.style.display = 'block';
+  function showError(message) {
+    loginError.textContent = message;
+    loginError.style.display = 'block';
+    passwordInput.value = '';
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Masuk';
   }
 
-  loginBtn.addEventListener('click', () => {
-    if (keyInput.value === window.ADMIN_KEY) {
-      // Simpan key di sessionStorage untuk sesi ini
-      sessionStorage.setItem('admin_key', keyInput.value);
-      // Redirect ke URL dengan key agar bisa direfresh
-      window.location.href = window.location.pathname + '?key=' + encodeURIComponent(keyInput.value);
-    } else {
-      loginError.style.display = 'block';
-      keyInput.value = '';
+  async function handleLogin() {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    if (!email || !password) return;
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Memverifikasi...';
+    loginError.style.display = 'none';
+    try {
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) {
+        showError(error.message === 'Invalid login credentials'
+          ? 'Email atau password salah.'
+          : 'Login gagal: ' + error.message);
+        return;
+      }
+      showAdminPanel();
+    } catch {
+      showError('Login gagal. Periksa koneksi internet.');
     }
-  });
+  }
 
-  // Jika user tekan Enter di input
-  keyInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      loginBtn.click();
-    }
-  });
+  loginBtn.addEventListener('click', handleLogin);
+  [emailInput, passwordInput].forEach((el) =>
+    el.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleLogin(); })
+  );
 
-  function showAdminPanel() {
-    loginSection.style.display = 'none';
+  async function showAdminPanel() {
+    loginSection.hidden = true;
     authSection.style.display = 'block';
-    initAdmin();
+    try {
+      const { data } = await sb.auth.getUser();
+      document.getElementById('sessionEmail').textContent = data?.user?.email || '';
+    } catch { /* abaikan */ }
+    initAdmin(sb);
   }
 
-  // --- Admin logic ---
-  function initAdmin() {
-    const supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  // Sesi sebelumnya masih aktif? Langsung buka panel.
+  sb.auth.getSession().then(({ data }) => {
+    if (data.session) {
+      showAdminPanel();
+    } else {
+      loginSection.hidden = false;
+    }
+  });
 
+  // --- Logika admin ---
+  function initAdmin(sb) {
     // Elemen DOM
+    const logoutBtn = document.getElementById('logoutBtn');
     const fileInput = document.getElementById('fileInput');
     const selectFilesBtn = document.getElementById('selectFilesBtn');
     const fileListContainer = document.getElementById('fileListContainer');
@@ -64,6 +83,11 @@
     let selectedFiles = [];
     const MAX_FILES = 10;
     const MAX_SIZE = 5 * 1024 * 1024;
+
+    logoutBtn.addEventListener('click', async () => {
+      await sb.auth.signOut();
+      location.reload();
+    });
 
     selectFilesBtn.addEventListener('click', () => fileInput.click());
 
@@ -91,15 +115,24 @@
       selectedFiles.forEach((file, idx) => {
         const li = document.createElement('li');
         li.className = 'file-item';
-        li.innerHTML = `
-          <div class="file-info">
-            <span class="file-name">${file.name}</span>
-            <span class="file-size">(${(file.size / 1024).toFixed(1)} KB)</span>
-          </div>
-          <div class="file-desc">
-            <input type="text" class="desc-input" data-index="${idx}" placeholder="Deskripsi (opsional)">
-          </div>
-        `;
+        const info = document.createElement('div');
+        info.className = 'file-info';
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'file-name';
+        nameSpan.textContent = file.name;
+        const sizeSpan = document.createElement('span');
+        sizeSpan.className = 'file-size';
+        sizeSpan.textContent = `(${(file.size / 1024).toFixed(1)} KB)`;
+        info.append(nameSpan, sizeSpan);
+        const descDiv = document.createElement('div');
+        descDiv.className = 'file-desc';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'desc-input';
+        input.dataset.index = idx;
+        input.placeholder = 'Deskripsi (opsional)';
+        descDiv.appendChild(input);
+        li.append(info, descDiv);
         fileList.appendChild(li);
       });
       fileListContainer.style.display = 'block';
@@ -136,32 +169,33 @@
         const statusDiv = document.createElement('div');
         statusDiv.className = 'file-status';
         statusDiv.id = statusId;
-        statusDiv.innerHTML = `<span class="status-icon">⏳</span> ${file.name} - Mengunggah...`;
+        statusDiv.textContent = `⏳ ${file.name} - Mengunggah...`;
         progressDetail.appendChild(statusDiv);
         updateProgress(i, filesWithDesc.length, `Mengunggah ${i+1} dari ${filesWithDesc.length}`);
 
         try {
-          const filePath = `${Date.now()}_${file.name}`;
-          const { error: uploadError } = await supabase.storage
+          // ponytail: nama file di-encode manual — encodeURIComponent per segmen agar "/" pemisah folder tetap utuh
+          const filePath = `${Date.now()}_${encodeURIComponent(file.name).replace(/%2C|%20/g, m => decodeURIComponent(m))}`;
+          const { error: uploadError } = await sb.storage
             .from('templates')
             .upload(filePath, file, { cacheControl: '3600', upsert: false });
 
           if (uploadError) throw uploadError;
 
-          const { data: { publicUrl } } = supabase.storage
+          const { data: { publicUrl } } = sb.storage
             .from('templates')
             .getPublicUrl(filePath);
 
-          const { error: insertError } = await supabase
+          const { error: insertError } = await sb
             .from('templates')
             .insert([{ name: nameWithoutExt, description, file_url: publicUrl }]);
 
           if (insertError) throw insertError;
 
-          document.getElementById(statusId).innerHTML = `<span class="status-icon">✅</span> ${file.name} - Berhasil`;
+          statusDiv.textContent = `✅ ${file.name} - Berhasil`;
           successCount++;
         } catch (error) {
-          document.getElementById(statusId).innerHTML = `<span class="status-icon">❌</span> ${file.name} - Gagal: ${error.message}`;
+          statusDiv.textContent = `❌ ${file.name} - Gagal: ${error.message}`;
           failCount++;
         }
 
@@ -185,7 +219,7 @@
     }
 
     async function loadTemplates() {
-      const { data, error } = await supabase
+      const { data, error } = await sb
         .from('templates')
         .select('*')
         .order('created_at', { ascending: false });
@@ -206,7 +240,7 @@
           <p>${escapeHtml(t.description || '')}</p>
           <div class="card-actions">
             <a href="${t.file_url}" download class="btn btn-secondary">Unduh</a>
-            <button class="btn btn-danger delete-btn" data-id="${t.id}" data-path="${t.file_url}">Hapus</button>
+            <button class="btn btn-danger delete-btn" data-id="${t.id}">Hapus</button>
           </div>
         </div>
       `).join('');
@@ -214,12 +248,13 @@
       document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', async (e) => {
           const id = e.target.dataset.id;
-          const fileUrl = e.target.dataset.path;
+          const fileUrl = e.target.closest('.template-card').querySelector('.card-actions a').href;
           if (!confirm('Yakin hapus template ini?')) return;
 
-          const path = fileUrl.split('/').pop();
-          await supabase.storage.from('templates').remove([path]);
-          await supabase.from('templates').delete().eq('id', id);
+          const path = decodeURIComponent(new URL(fileUrl, location.href).pathname.split('/object/public/templates/')[1] || '');
+          if (!path) { alert('URL file tidak dikenali.'); return; }
+          await sb.storage.from('templates').remove([path]);
+          await sb.from('templates').delete().eq('id', id);
           loadTemplates();
         });
       });
