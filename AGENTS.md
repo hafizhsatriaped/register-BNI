@@ -13,10 +13,11 @@ index.html    → dashboard publik: grid, cari, preview PDF (iframe), download
 admin.html    → panel admin: upload, list, hapus (login email+password)
 app.js        → logika dashboard publik
 admin.js      → logika panel admin (login Supabase Auth, sesi, logout)
+util.js       → escapeHtml + isAllowedExt bersama (app/admin + check.node.js)
 config.js     → SUPABASE_URL, SUPABASE_ANON_KEY saja (publik by design)
 styles.css    → gaya bersama
 supabase-auth-migration.sql → skrip RLS wajib dijalankan di Supabase
-netlify.toml  → redirect /admin → admin.html (hanya untuk Netlify)
+check.node.js → self-check: `node check.node.js`
 CHANGELOG.md  → riwayat semua perubahan
 ```
 
@@ -39,6 +40,7 @@ CHANGELOG.md  → riwayat semua perubahan
 ## Validasi / verifikasi
 
 - Situs statis → uji lokal: buka `index.html` di browser, atau `npx serve .` (opsional; tanpa JS run).
+- Self-check util: `node check.node.js` (harus `Self-check OK`).
 - Tidak ada lint/test framework. Cek manual: konsol browser tidak ada error.
 - Pastikan `config.js` tidak diubah kredensialnya secara tidak sengaja.
 

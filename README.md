@@ -11,10 +11,11 @@ index.html    → dashboard publik: grid, cari, preview PDF (iframe), download
 admin.html    → panel admin: upload, list, hapus (login email+password)
 app.js        → logika dashboard publik
 admin.js      → logika panel admin (login Supabase Auth, sesi, logout)
+util.js       → util bersama (escapeHtml, isAllowedExt) — dipakai app/admin + check.node.js
 config.js     → isi SUPABASE_URL dan SUPABASE_ANON_KEY saja
 styles.css    → gaya bersama
 supabase-auth-migration.sql → skrip RLS wajib dijalankan di Supabase
-netlify.toml  → redirect /admin → admin.html (jika di-deploy ke Netlify)
+check.node.js → self-check: `node check.node.js`
 CHANGELOG.md  → riwayat semua perubahan
 ```
 
@@ -56,8 +57,6 @@ create policy "templates_select_anon" on templates
 3. Akses admin: `<situs>/admin.html`, login dengan email + password admin.
 4. Catatan: tiap push butuh ~1–2 menit untuk build + purge cache CDN sebelum versi teranyar aktif.
 
-**Netlify (alternatif):** drag & drop folder ini ke app.netlify.com, atau `netlify deploy`. Redirect `/admin` → `admin.html` otomatis via `netlify.toml`.
-
 ## Perilaku download (penting)
 
 - Tombol **Download** adalah link langsung ke `file_url` (dibuka di tab baru).
@@ -76,3 +75,5 @@ create policy "templates_select_anon" on templates
 
 - Excel (xls/xlsx) tidak di-preview, langsung download (sesuai spesifikasi opsional).
 - Preview PDF via iframe; beberapa browser/plugin bisa memblokir tampilannya — tombol Download selalu tersedia.
+- Select data pakai `.range(0, 4999)` — maksimum 5000 template terbaru tampil; di atas itu perlu pagination.
+- Validasi tipe/ukuran upload (PDF/Excel, ≤5 MB) hanya di browser (UX); boundary keamanan ada di RLS/wajib login.

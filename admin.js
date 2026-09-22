@@ -18,6 +18,17 @@
     loginBtn.textContent = 'Masuk';
   }
 
+  function isAuthError(error) {
+    return error?.status === 401 || error?.status === 403
+      || /row-level security|not authorized|JWT expired/i.test(error?.message || '');
+  }
+
+  function authErrorMessage(error) {
+    return isAuthError(error)
+      ? 'Sesi berakhir atau tidak punya akses. Silakan login ulang.'
+      : 'Gagal: ' + error.message;
+  }
+
   async function handleLogin() {
     const email = emailInput.value.trim();
     const password = passwordInput.value;
@@ -63,6 +74,14 @@
     }
   });
 
+  // Sesi habis selagi panel terbuka → kembali ke login.
+  sb.auth.onAuthStateChange((_event, session) => {
+    if (!session && authSection.style.display === 'block') {
+      alert('Sesi berakhir. Silakan login ulang.');
+      location.reload();
+    }
+  });
+
   // --- Logika admin ---
   function initAdmin(sb) {
     // Elemen DOM
@@ -99,7 +118,7 @@
         return;
       }
 
-      const valid = files.every(f => f.size <= MAX_SIZE && /\.(pdf|xls|xlsx)$/i.test(f.name));
+      const valid = files.every(f => f.size <= MAX_SIZE && isAllowedExt(f.name));
       if (!valid) {
         alert('Beberapa file tidak valid. Pastikan semua file PDF/Excel dan ukuran ≤ 5 MB.');
         fileInput.value = '';
@@ -190,13 +209,17 @@
             .from('templates')
             .insert([{ name: nameWithoutExt, description, file_url: publicUrl }]);
 
-          if (insertError) throw insertError;
+          if (insertError) {
+            await sb.storage.from('templates').remove([filePath]);
+            throw insertError;
+          }
 
           statusDiv.textContent = `✅ ${file.name} - Berhasil`;
           successCount++;
         } catch (error) {
-          statusDiv.textContent = `❌ ${file.name} - Gagal: ${error.message}`;
+          statusDiv.textContent = `❌ ${file.name} - ${authErrorMessage(error)}`;
           failCount++;
+          if (isAuthError(error)) break;
         }
 
         updateProgress(i+1, filesWithDesc.length, '');
@@ -222,7 +245,8 @@
       const { data, error } = await sb
         .from('templates')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(0, 4999);
 
       if (error) {
         templateListDiv.innerHTML = '<p>Gagal memuat template.</p>';
@@ -239,7 +263,7 @@
           <h3>${escapeHtml(t.name)}</h3>
           <p>${escapeHtml(t.description || '')}</p>
           <div class="card-actions">
-            <a href="${t.file_url}" download class="btn btn-secondary">Unduh</a>
+            <a href="${escapeHtml(t.file_url)}" target="_blank" rel="noopener" class="btn btn-secondary">Unduh</a>
             <button class="btn btn-danger delete-btn" data-id="${t.id}">Hapus</button>
           </div>
         </div>
@@ -251,19 +275,20 @@
           const fileUrl = e.target.closest('.template-card').querySelector('.card-actions a').href;
           if (!confirm('Yakin hapus template ini?')) return;
 
+          const { error: delError } = await sb.from('templates').delete().eq('id', id);
+          if (delError) {
+            alert(authErrorMessage(delError));
+            return;
+          }
+
           const path = decodeURIComponent(new URL(fileUrl, location.href).pathname.split('/object/public/templates/')[1] || '');
-          if (!path) { alert('URL file tidak dikenali.'); return; }
-          await sb.storage.from('templates').remove([path]);
-          await sb.from('templates').delete().eq('id', id);
+          if (path) {
+            const { error: rmError } = await sb.storage.from('templates').remove([path]);
+            if (rmError) console.warn('File storage gagal dihapus:', rmError.message);
+          }
           loadTemplates();
         });
       });
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
     }
 
     loadTemplates();

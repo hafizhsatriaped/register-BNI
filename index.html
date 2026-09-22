@@ -24,12 +24,13 @@
 <div id="preview-modal" class="modal" hidden>
   <div class="modal-box">
     <button class="modal-close" onclick="closePreview()" aria-label="Tutup">&#10005;</button>
-    <iframe id="preview-frame" title="Preview PDF"></iframe>
+    <iframe id="preview-frame" title="Preview PDF" referrerpolicy="no-referrer"></iframe>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.min.js" integrity="sha256-+95SqrFwCjswgIeueLQftRkuepUtgdXQgjh2POMkXdg=" crossorigin="anonymous"></script>
 <script src="config.js"></script>
+<script src="util.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

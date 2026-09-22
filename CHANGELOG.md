@@ -2,6 +2,30 @@
 
 Semua perubahan penting dicatat di sini. Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/).
 
+## [0.2.1] — 2026-09-22
+
+Audit GH issues #1–#12 (prioritas keamanan → integritas → cleanup).
+
+### Keamanan
+- **XSS escaping** (issue #11): `file_url` kini di-escape di href panel admin; tombol Preview tidak lagi memakai `onclick` inline + `escapeJs` (yang tidak escape `"` untuk konteks atribut) — diganti `data-preview` + `addEventListener`.
+- **Validasi upload vs README** (issue #12): batasan ekstensi/ukuran tetap client-side (UX); dicatat eksplisit di README bahwa boundary keamanan = RLS + login.
+- CDN **`supabase-js` dipin ke `2.116.0` + SRI** (issue #1) di `index.html`/`admin.html` — sebelumnya `@2` float.
+
+### Diperbaiki
+- **Integritas data upload/hapus** (issue #3): insert gagal setelah upload → file storage di-rollback; hapus kini delete row dulu (cek error), storage best-effort belakangan.
+- **Session expired** (issue #8): listener `onAuthStateChange` → kembali ke login bila sesi habis selagi panel terbuka; error RLS/401/403 di upload/hapus diterjemahkan jadi "silakan login ulang" (batch upload berhenti pada error auth).
+- **Unduh di admin** (issue #4): atribut `download` lintas-origin (tidak berfungsi) diganti `target="_blank" rel="noopener"` — samakan dengan dashboard publik.
+- **Select tanpa range** (issue #2): `.range(0, 4999)` di publik + admin agar tidak terpotong diam-diam di default 1000 baris PostgREST; limit dicatat di README.
+- **Modal preview** (issue #9): tutup via tombol Escape, fokus pindah ke tombol tutup saat dibuka, iframe `referrerpolicy="no-referrer"`. (Sandbox iframe sengaja dilewati — berisiko merusak PDF viewer.)
+
+### Ditambahkan
+- **Loading state** dashboard publik (issue #6): "Memuat..." sebelum fetch pertama.
+- **`util.js`** (issue #12): `escapeHtml` + `isAllowedExt` satu implementasi dipakai `app.js`/`admin.js`/`check.node.js` — sebelumnya `escapeHtml` terduplikasi 3× dan self-check menguji salinan, bukan kode produksi.
+
+### Dihapus
+- CSS mati (issue #5): `.narrow`, `.list`, `.row`, `.row-info`, `.row-actions`, `.status-icon`.
+- `netlify.toml` + bagian Netlify di README (issue #7): deploy = GitHub Pages; komentar lama masih menyebut `?key=` era `ADMIN_KEY`.
+
 ## [0.2.0] — 2026-08-22
 
 ### Keamanan

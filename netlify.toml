@@ -1,5 +1,0 @@
-# Supaya /admin?key=... dibuka sebagai admin.html (rewrite, query string tetap)
-[[redirects]]
-  from = "/admin"
-  to = "/admin.html"
-  status = 200
